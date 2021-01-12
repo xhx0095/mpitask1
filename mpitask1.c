@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "mpi.h"
 #include<malloc.h>
+#include <math.h>
 main(int argc, char** argv) {
 	int my_rank;
 	int p;
@@ -10,25 +11,28 @@ main(int argc, char** argv) {
 	char message[1000];
 	int count;
 	int data1;
-
+	int i;
 	MPI_Status status;
 	MPI_Init(&argc, &argv);
 	MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &p);
 	if (my_rank != 0) {
-		data1 = my_rank;
+		int data1=pow(10,my_rank);
+		sprintf(message, " hello from  %d!",data1);
 		dest = 0;
-		MPI_Send(&data1, 2, MPI_INT, dest, tag, MPI_COMM_WORLD);
+		MPI_Send(message, strlen(message)+1, MPI_CHAR, dest, tag, MPI_COMM_WORLD);
+
 	}
 	if (my_rank == 0) {
 		for (source = 1; source < p; source++) {
 			MPI_Probe(MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
-			MPI_Get_count(&status, MPI_INT, &count);
-			printf(" count is %d\n", count);
-			int(*a)[2] = (int(*)[2])malloc(sizeof(int) * count * 2);
-			MPI_Recv(&data1, 2, MPI_INT, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
-			a[source][0] = data1;
-			printf(" help from %d\n", a[source][0]);
+			MPI_Get_count(&status, MPI_CHAR, &count);
+			char(*a)[20]=(char(*)[20])malloc(sizeof(char) * count * 20);
+			MPI_Recv(message, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
+			for (i = 0; i < strlen(message)+1; i++) {
+				a[source][i] = message[i];
+			}
+			printf(" %s\n", a[source]);
 		}
 	}
 	MPI_Finalize();
