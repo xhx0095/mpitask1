@@ -8,7 +8,7 @@ main(int argc, char** argv) {
 	int source;
 	int dest;
 	int tag = 50;
-	char message[1000];
+	char message[100];
 	int count;
 	int data1;
 	int i;
@@ -27,8 +27,8 @@ main(int argc, char** argv) {
 		for (source = 1; source < p; source++) {
 			MPI_Probe(MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
 			MPI_Get_count(&status, MPI_CHAR, &count);
-			char(*a)[20]=(char(*)[20])malloc(sizeof(char) * count * 20);
 			MPI_Recv(message, 1000, MPI_CHAR, MPI_ANY_SOURCE, tag, MPI_COMM_WORLD, &status);
+			char(*a)[100] = (char(*)[100])malloc(sizeof(char) * count * 100);
 			for (i = 0; i < strlen(message)+1; i++) {
 				a[source][i] = message[i];
 			}
